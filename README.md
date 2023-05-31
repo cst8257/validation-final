@@ -1,2 +1,4 @@
-# validation
-This repository contains the starter files for the Validation project.
+# Validation
+
+## Objective
+Incorporate PHP validation on the form data.
