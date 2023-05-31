@@ -1,9 +1,77 @@
 <?php
+  // function sanitize($data) {
+  //   return htmlspecialchars(stripslashes(trim($data)));
+  // }
+
+  function sanitize($data) {
+    return array_map(function ($value) {
+      return htmlspecialchars(stripslashes(trim($value)));
+    }, $data);
+  }
 
   $colors = ['red', 'blue', 'green'];
 
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+    // $name = sanitize($_POST['name']);
+
+    $data = sanitize($_POST);
+    extract($data);
+
+    $errors = [];
+
+    if (!$name) {
+      $errors['name'] = 'Name is required';
+    } else if (!preg_match('/^[a-zA-Z\s]+$/', $name)) {
+      $errors['name'] = 'Name is invalid';
+    }
+
+    if (!$email) {
+      $errors['email'] = 'Email is required';
+    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $errors['email'] = 'Email is invalid';
+    }
+
+    if (!$phone) {
+      $errors['phone'] = 'Phone is required';
+    } else if (!preg_match('/^\d{10}$/', preg_replace("/[^0-9]/", "", $phone))) {
+      $errors['phone'] = 'Phone is invalid';
+    }
+
+    if (!$website) {
+      $errors['website'] = 'Website is required';
+    } else if (!filter_var($website, FILTER_VALIDATE_URL)) {
+      $errors['website'] = 'Website is invalid';
+    }
+
+    if (!$price) {
+      $errors['price'] = 'Price is required';
+    } else if (!filter_var($price, FILTER_VALIDATE_FLOAT)) {
+      $errors['price'] = 'Price is invalid';
+    }
+
+    if (!$age) {
+      $errors['age'] = 'Age is required';
+    } else if (!filter_var($age, FILTER_VALIDATE_INT) || $age < 0) {
+      $errors['age'] = 'Age is invalid';
+    }
+
+    if (!$date) {
+      $errors['date'] = 'Date is required';
+    } else if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+      $errors['date'] = 'Date is invalid';
+    }
+
+    if (!$time) {
+      $errors['time'] = 'Time is required';
+    } else if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
+      $errors['time'] = 'Time is invalid';
+    }
+
+    if (!$color) {
+      $errors['color'] = 'Color is required';
+    } else if (!in_array($color, $colors)) {
+      $errors['color'] = 'Color is invalid';
+    }
   }
 ?>
 <!DOCTYPE html>
@@ -26,12 +94,14 @@
               <label class="form-label">Name</label>
               <input 
                 type="text" 
-                class="form-control" 
+                class="form-control <?php if(isset($errors['name'])): ?>is-invalid<?php endif; ?>" 
                 name="name" 
                 placeholder="Name" 
-                value="">
+                value="<?php echo $name ?? ''; ?>">
               <div class="invalid-feedback">
-                Name is required.
+                <?php if(isset($errors['name'])): ?>
+                  <?php echo $errors['name']; ?>
+                <?php endif; ?>
               </div>
             </div>
             <div class="col mb-3">
